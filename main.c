@@ -3,22 +3,30 @@
 #include <string.h>
 
 ///DEFINITIONS
-#define MAX_BOOKS 100
-#define MAX_USERS 100
+#define MAX_LIVRES 100
+#define MAX_MEMBRES 100
 
 
 ///STRUCTURES
 struct Book {
+    //char UID[100]; ou ISBN BK-132764781
     char Title[100];
     char Author[100];
     int Year;
 } typedef Book;
 
 struct User {
+    //char UID[100]; USER-A3UIOR4
     char Username[100];
     char FirstName[100];
     char LastName[100];
 } typedef User;
+
+struct Emprunt {
+    //char UID[100]; EMP-129380-13198
+    char userID[100];
+    char bookID[100];
+} typedef Emprunt;
 
 
 ///BOOK PROTOTYPES
@@ -26,18 +34,18 @@ void addBook(Book*, int*);
 void saveLibrary(Book*, int); //will be changed in 'savefiles'
 void loadFiles(Book*, int*, User*, int*);
 void displayLibrary(Book*, int);
-//USER PROTOTYPES
+///USER PROTOTYPES
 void addUser(User*, int*);
 void displayUsersList(User*, int);
 
 int main() 
 {
-    Book library[MAX_BOOKS];
-    User users[MAX_USERS];
+    Book livres[MAX_LIVRES];
+    User membres[MAX_MEMBRES];
     int numBooks = 0, numUsers = 0;
-    int choice;
+    int choix;
 
-    loadFiles(library, &numBooks, users, &numUsers);
+    loadFiles(livres, &numBooks, membres, &numUsers);
 
     do {
         printf("\nGestion de la bibliothèque\n");
@@ -46,28 +54,28 @@ int main()
         printf("3. Enregistrer la bibliothèque dans un fichier\n");
         printf("4. Quitter\n");
         printf("Choix : ");
-        scanf("%d", &choice);
-        getchar(); // Pour consommer le caractère de nouvelle ligne laissé dans le buffer par scanf
+        scanf("%d", &choix);
+        fflush(stdin); // Pour consommer le caractère de nouvelle ligne laissé dans le buffer par scanf
 
-        switch (choice) {
+        switch (choix) {
             case 1:
-                addBook(library, &numBooks);
+                addBook(livres, &numBooks);
                 break;
             case 2:
-                displayLibrary(library, numBooks);
+                displayLibrary(livres, numBooks);
                 break;
             case 3:
-                saveLibrary(library, numBooks);
+                saveLibrary(livres, numBooks);
                 break;
             case 4:
                 printf("Au revoir !\n");
                 break;
             case 5:
-                displayUsersList(users, numUsers);
+                displayUsersList(membres, numUsers);
             default:
                 printf("Choix invalide.\n");
         }
-    } while (choice != 4);
+    } while (choix != 4);
 
 return 0;
 }
@@ -75,27 +83,27 @@ return 0;
 
 void addBook(Book *books, int *numBooks) 
 {
-    if (*numBooks == MAX_BOOKS) 
+    if (*numBooks == MAX_LIVRES) 
     {
         printf("La bibliothèque est pleine. Impossible d'ajouter un livre.\n");
         return;
     }
 
-    struct Book newBook;
+    Book nouveauLivre;
 
     printf("Titre du livre : ");
-    fgets(newBook.Title, sizeof(newBook.Title), stdin);
-    newBook.Title[strcspn(newBook.Title, "\n")] = '\0';
+    scanf("%s", nouveauLivre.Title);
+    fflush(stdin);
 
     printf("Auteur : ");
-    fgets(newBook.Author, sizeof(newBook.Author), stdin);
-    newBook.Author[strcspn(newBook.Author, "\n")] = '\0';
+    scanf("%s", nouveauLivre.Author);
+    fflush(stdin);
 
-    printf("Année de publication : ");
-    scanf("%d", &newBook.Year);
-    getchar(); // Pour consommer le caractère de nouvelle ligne laissé dans le buffer par scanf
+    printf("Annee de publication : ");
+    scanf("%i", &nouveauLivre.Year);
+    fflush(stdin);
 
-    books[*numBooks] = newBook;
+    books[*numBooks] = nouveauLivre;
     (*numBooks)++;
 
     printf("Livre ajouté avec succès !\n");
