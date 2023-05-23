@@ -16,13 +16,25 @@ La base de données est séparée en 3 parties
 
 ## Structures
 ```
-struct User {
-    char UID[]; (unique user id)
-    char LastName[50];
-    char FirstName[50];
-    char Username[50];
+struct Book {
+    char BookID[100]; //par exemple : ISBN ou BOOK-132764781
+    char Title[100];
+    char Author[100];
+    int Year;
+} typedef Book;
 
+struct User {
+    char UserID[100]; //par exemple : USER-A3UIOR478146
+    char Username[100];
+    char FirstName[100];
+    char LastName[100];
 } typedef User;
+
+struct Loan {
+    char UID[100]; //par exemple : EMP-129380-13198
+    char userID[100];
+    char bookID[100];
+} typedef Loan;
 ```
 ## Fonctions disponibles
 Au démarrage
