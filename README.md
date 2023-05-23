@@ -26,7 +26,7 @@ struct User {
 ```
 ## Fonctions disponibles
 Au démarrage
-- Chargement des fichiers 'txt' dans les structures
+- Chargement des fichiers 'txt' dans les structures grâce à une fonction loadData();
 
 Gestion des livres
 - addBook()
