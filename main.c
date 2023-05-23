@@ -9,30 +9,30 @@
 
 ///STRUCTURES
 struct Book {
-    //char UID[100]; ou ISBN BK-132764781
+    char BookID[100]; //par exemple : ISBN ou BOOK-132764781
     char Title[100];
     char Author[100];
     int Year;
 } typedef Book;
 
 struct User {
-    //char UID[100]; USER-A3UIOR4
+    char UserID[100]; //par exemple : USER-A3UIOR478146
     char Username[100];
-    char FirstName[100];
     char LastName[100];
+    char FirstName[100];
 } typedef User;
 
-struct Emprunt {
-    //char UID[100]; EMP-129380-13198
+struct Loan {
+    char UID[100]; //par exemple : EMP-129380-13198
     char userID[100];
     char bookID[100];
-} typedef Emprunt;
+} typedef Loan;
 
+void loadData(Book*, int*, User*, int*);
+void saveData(Book*, int, User*, int);
 
 ///BOOK PROTOTYPES
 void addBook(Book*, int*);
-void saveLibrary(Book*, int); //will be changed in 'savefiles'
-void loadFiles(Book*, int*, User*, int*);
 void displayLibrary(Book*, int);
 ///USER PROTOTYPES
 void addUser(User*, int*);
@@ -45,10 +45,10 @@ int main()
     int numBooks = 0, numUsers = 0;
     int choix;
 
-    loadFiles(livres, &numBooks, membres, &numUsers);
+    loadData(livres, &numBooks, membres, &numUsers);
 
     do {
-        printf("\nGestion de la bibliothèque\n");
+        printf("\nBienvenue sur le programme de gestion de la bibliothèque IPES Wavre, que souhaitez vous faire ?\n");
         printf("1. Ajouter un livre\n");
         printf("2. Afficher la bibliothèque\n");
         printf("3. Enregistrer la bibliothèque dans un fichier\n");
@@ -65,18 +65,19 @@ int main()
                 displayLibrary(livres, numBooks);
                 break;
             case 3:
-                saveLibrary(livres, numBooks);
+                //saveLibrary(livres, numBooks);
                 break;
             case 4:
                 printf("Au revoir !\n");
                 break;
             case 5:
                 displayUsersList(membres, numUsers);
+                break;
             default:
                 printf("Choix invalide.\n");
         }
     } while (choix != 4);
-
+    saveData(livres, numBooks, membres, numUsers);
 return 0;
 }
 
@@ -89,27 +90,28 @@ void addBook(Book *books, int *numBooks)
         return;
     }
 
-    Book nouveauLivre;
+    Book newBook;
 
     printf("Titre du livre : ");
-    scanf("%s", nouveauLivre.Title);
+    scanf("%s", newBook.Title);
     fflush(stdin);
 
     printf("Auteur : ");
-    scanf("%s", nouveauLivre.Author);
+    scanf("%s", newBook.Author);
     fflush(stdin);
 
     printf("Annee de publication : ");
-    scanf("%i", &nouveauLivre.Year);
+    scanf("%i", &newBook.Year);
     fflush(stdin);
 
-    books[*numBooks] = nouveauLivre;
+    books[*numBooks] = newBook;
     (*numBooks)++;
 
     printf("Livre ajouté avec succès !\n");
 }
 
-void saveLibrary(Book *books, int numBooks) 
+//Fonction appelée à la fermeture du programme pour stocker le contenu des tableaux 'livres', 'membres' et 'emprunts' dans les fichiers.txt
+void saveData(Book *books, int numBooks, User *users, int numUsers) 
 {
     FILE *file = fopen("livres.txt", "w");
     if (file == NULL) 
@@ -128,10 +130,11 @@ void saveLibrary(Book *books, int numBooks)
     printf("La bibliothèque a été enregistrée avec succès dans le fichier.\n");
 }
 
-void loadFiles(Book *books, int *numBooks, User *users, int *numUsers) 
+//Fonction appelée au démarrage du programme pour stocker dans les tableaux de structure 'livres', 'membres' et 'emprunts' les données présents dans les fichiers .txt
+void loadData(Book *books, int *numBooks, User *users, int *numUsers) 
 {
     char bookFile[50] = "livres.txt";
-    char usersFile[50] = "utilisateurs.txt";
+    char usersFile[50] = "membres.txt";
 
     //Chargement du fichier livres
     FILE *ptr_bookFile = fopen(bookFile, "r");
@@ -178,14 +181,21 @@ void loadFiles(Book *books, int *numBooks, User *users, int *numUsers)
         char *token;
         token = strtok(line, ";");
 
-        strcpy(users[*numUsers].Username, token);
+        strcpy(users[*numUsers].UserID, token);
+        //printf("%s", users[*numUsers].UserID); debug printfs
         token = strtok(NULL, ";");
 
-        strcpy(users[*numUsers].FirstName, token);
+        strcpy(users[*numUsers].Username, token);
+        //printf("%s", users[*numUsers].Username);
         token = strtok(NULL, ";");
 
         strcpy(users[*numUsers].LastName, token);
-        token = strtok(line, ";");
+        //printf("%s", users[*numUsers].LastName);
+        token = strtok(NULL, ";");
+
+        strcpy(users[*numUsers].FirstName, token);
+        //printf("%s", users[*numUsers].FirstName);
+        token = strtok(NULL, ";");
 
         (*numUsers)++;
     }
@@ -217,7 +227,33 @@ void displayLibrary(Book *books, int numBooks)
 
 void addUser(User *users, int *numUsers)
 {
+    if (*numUsers == MAX_MEMBRES) 
+    {
+        printf("L'emplacement pour les membres est plein.\n");
+        return;
+    }
 
+    User newUser;
+
+    //génération du UID idGeneration(string type) return string; swi
+
+    printf("Nom de l'utilisateur : ");
+    scanf("%s", newUser.LastName);
+    fflush(stdin);
+
+    printf("Prenom de l'utilisateur : ");
+    scanf("%s", newUser.FirstName);
+    fflush(stdin);
+
+    printf("Pseudo de l'utilisateur : ");
+    scanf("%s", newUser.Username);
+
+
+
+    users[*numUsers] = newUser;
+    (*numUsers)++;
+
+    printf("Livre ajouté avec succès !\n");
 }
 
 void displayUsersList(User *users, int numUsers)
@@ -230,7 +266,7 @@ void displayUsersList(User *users, int numUsers)
     printf("Utilisateurs dans la bibliothèque :\n");
     for(int i = 0; i < numUsers; i++)
     {
-        printf("ID : %d\n", i + 1);
+        printf("ID : %s\n", users[i].UserID);
         printf("Nom d'utilisateur : %s\n", users[i].Username);
         printf("Prénom : %s\n", users[i].FirstName);
         printf("Nom de famille : %s\n", users[i].LastName);
