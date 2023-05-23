@@ -15,7 +15,7 @@ La base de données est séparée en 3 parties
 - un fichier 'emprunts.txt'
 
 ## Structures
-´´
+```
 struct User {
     char UID[]; (unique user id)
     char LastName[50];
@@ -23,7 +23,7 @@ struct User {
     char Username[50];
 
 } typedef User;
-``
+```
 ## Fonctions disponibles
 Chargement des fichiers 'txt' dans les structures
 
