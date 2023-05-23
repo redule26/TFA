@@ -25,7 +25,8 @@ struct User {
 } typedef User;
 ```
 ## Fonctions disponibles
-Chargement des fichiers 'txt' dans les structures
+Au démarrage
+- Chargement des fichiers 'txt' dans les structures
 
 Gestion des livres
 - addBook()
