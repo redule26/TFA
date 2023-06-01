@@ -34,18 +34,24 @@ void saveData(Book*, int, User*, int);
 ///BOOK PROTOTYPES
 void addBook(Book*, int*);
 void displayLibrary(Book*, int);
+void showBook(Book*);
 ///USER PROTOTYPES
 void addUser(User*, int*);
 void displayUsersList(User*, int);
+void showUser(User*, char[]);
+///LOANS PROTOTYPES
+void displayLoansList(Loan*, int);
+void showLoan(Loan*, char[]);
+void showUserLoans(User*, Loan*, int, int);
 
 int main() 
 {
-    Book livres[MAX_LIVRES];
-    User membres[MAX_MEMBRES];
+    Book books[MAX_LIVRES];
+    User users[MAX_MEMBRES];
     int numBooks = 0, numUsers = 0;
-    int choix;
+    int choice;
 
-    loadData(livres, &numBooks, membres, &numUsers);
+    loadData(books, &numBooks, users, &numUsers);
 
     do {
         printf("\nBienvenue sur le programme de gestion de la bibliothèque IPES Wavre, que souhaitez vous faire ?\n");
@@ -54,30 +60,31 @@ int main()
         printf("3. Enregistrer la bibliothèque dans un fichier\n");
         printf("4. Quitter\n");
         printf("Choix : ");
-        scanf("%d", &choix);
+        scanf("%i", &choice);
         fflush(stdin); // Pour consommer le caractère de nouvelle ligne laissé dans le buffer par scanf
 
-        switch (choix) {
+        switch (choice) {
             case 1:
-                addBook(livres, &numBooks);
+                addBook(books, &numBooks);
                 break;
             case 2:
-                displayLibrary(livres, numBooks);
+                displayLibrary(books, numBooks);
                 break;
             case 3:
+                showBook(books);
                 //saveLibrary(livres, numBooks);
                 break;
             case 4:
                 printf("Au revoir !\n");
                 break;
             case 5:
-                displayUsersList(membres, numUsers);
+                displayUsersList(users, numUsers);
                 break;
             default:
                 printf("Choix invalide.\n");
         }
-    } while (choix != 4);
-    saveData(livres, numBooks, membres, numUsers);
+    } while (choice != 4);
+    saveData(books, numBooks, users, numUsers);
 return 0;
 }
 
@@ -108,6 +115,22 @@ void addBook(Book *books, int *numBooks)
     (*numBooks)++;
 
     printf("Livre ajouté avec succès !\n");
+}
+
+void showBook(Book *books)
+{
+    char id[100];
+    printf("Quel livre voulez-vous selectionner ? : ");
+    gets(id);
+
+    int i = 0;
+    while(books[i].BookID != id)
+    {
+        i++;
+    }
+
+    Book selectedBook = books[i];
+    printf("%s", selectedBook.BookID);
 }
 
 //Fonction appelée à la fermeture du programme pour stocker le contenu des tableaux 'livres', 'membres' et 'emprunts' dans les fichiers.txt
