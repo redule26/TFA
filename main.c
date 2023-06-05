@@ -65,31 +65,35 @@ void generateId(enum Type, char*, Book*, int, User*, int, Loan*, int);
 bool IsIdUsed(enum Type, char*, Book*, int, User*, int, Loan*, int);
 
 int main() {
+
+    //J'ai besoin de la fonction rand() pour générer un id unique
     srand(time(NULL));
+
     Book books[MAX_LIVRES];
     User users[MAX_MEMBRES];
     Loan loans[MAX_EMPRUNTS];
     int numBooks = 0, numUsers = 0, numLoans = 0;
     int choice;
 
+    //Chargement des données contenues dans les fichiers dans les arrays de livres, d'utilisateur et d'emprunts.
     loadData(books, &numBooks, users, &numUsers, loans, &numLoans);
 
-    do {
+    while(1) {
         choice = 0;
         printf("\nBienvenue sur le programme de gestion de la bibliothèque IPES Wavre, que souhaitez-vous faire ?\n");
 
         ///Gestion des livres
         printf("1. Ajouter un livre\n");
         printf("2. Afficher la bibliotheque\n");
-        printf("3. Montrer un livre par son identifiant\n");
+        printf("3. Montrer un livre par son identifiant\n\n");
 
         printf("4. Ajouter un membre \n");
         printf("5. Afficher la liste des membres \n");
-        printf("6. Afficher un membre et ses emprunts\n");
+        printf("6. Afficher un membre et ses emprunts\n\n");
 
         printf("7. creer un emprunt\n");
         printf("8. afficher les informations d'un emprunt\n");
-        printf("9. Afficher la liste des emprunts\n");
+        printf("9. Afficher la liste des emprunts\n\n");
 
         printf("10. Quitter\n");
         printf("Choix : ");
@@ -131,12 +135,12 @@ int main() {
 
             case 10:
                 printf("Au revoir !\n");
-                break;
+                return 0;
             default:
                 printf("Choix invalide.\n");
                 break;
         }
-    } while (choice != 10);
+    }
 
     saveData(books, numBooks, users, numUsers, loans, numLoans);
     return 0;
@@ -222,6 +226,7 @@ void loadData(Book *books, int *numBooks, User *users, int *numUsers, Loan *loan
     *numBooks = 0;
 
     char line[100];
+    //on boucle tant que la ligne contient du texte
     while (fgets(line, sizeof(line), ptr_bookFile) != NULL)
     {
         char *token;
@@ -254,6 +259,7 @@ void loadData(Book *books, int *numBooks, User *users, int *numUsers, Loan *loan
 
     *numUsers = 0;
 
+    //on boucle tant que la ligne contient du texte
     while (fgets(line, sizeof(line), ptr_usersFile) != NULL)
     {
         char *token;
@@ -287,6 +293,7 @@ void loadData(Book *books, int *numBooks, User *users, int *numUsers, Loan *loan
 
     *numLoans = 0;
 
+    //on boucle tant que la ligne contient du texte
     while (fgets(line, sizeof(line), ptr_loanFile) != NULL)
     {
         char *token;
@@ -312,7 +319,7 @@ void loadData(Book *books, int *numBooks, User *users, int *numUsers, Loan *loan
 
 ///Fonctions de livres
 
-
+//addBook() : permet de rajouter un livre dans le array de livres et par la suite dans le fichier
 void addBook(Book *books, int *numBooks)
 {
     if (*numBooks == MAX_LIVRES)
@@ -338,12 +345,14 @@ void addBook(Book *books, int *numBooks)
     fgets(yearInput, sizeof(yearInput), stdin);
     sscanf(yearInput, "%i", &newBook.Year);
 
+    //au lieu 
     books[*numBooks] = newBook;
     (*numBooks)++;
 
     printf("Livre ajouté avec succès !\n");
 }
 
+//displayLibrary() : fonction qui permet d'afficher une liste complète des livres stockés dans le array livre
 void displayLibrary(Book *books, int numBooks) 
 {
     if (numBooks == 0) 
@@ -364,10 +373,12 @@ void displayLibrary(Book *books, int numBooks)
     }
 }
 
+//showBook() : Affichage des informations à propos d'un livre en particulier
 void showBook(Book *books, int numBooks)
 {
     char id[30];
     printf("Quel livre voulez-vous selectionner ? : ");
+    //gets est une fonction dangereuse selon vscode du coup j'utilise fgets
     fgets(id, 30, stdin);
     id[strcspn(id, "\n")] = '\0'; // Supprimer le caractère de nouvelle ligne
 
@@ -399,6 +410,7 @@ void showBook(Book *books, int numBooks)
 ///Fonctions d'utilisateur
 
 
+//addUser() : permet de rajouter un utilisateur dans le array de membres et par la suite dans le fichier
 void addUser(User *users, int *numUsers)
 {
     if (*numUsers == MAX_MEMBRES) 
@@ -413,14 +425,17 @@ void addUser(User *users, int *numUsers)
     generateId(UserType, newUser.UserID, NULL, 0, users, *numUsers, NULL, 0);
 
     printf("Nom de famille de l'utilisateur : ");
+    //gets est une fonction dangereuse selon vscode du coup j'utilise fgets
     fgets(newUser.LastName, sizeof(newUser.LastName), stdin);
     newUser.LastName[strcspn(newUser.LastName, "\n")] = '\0'; // Supprimer le caractère de nouvelle ligne
 
     printf("Prenom de l'utilisateur : ");
+    //gets est une fonction dangereuse selon vscode du coup j'utilise fgets
     fgets(newUser.FirstName, sizeof(newUser.FirstName), stdin);
     newUser.FirstName[strcspn(newUser.FirstName, "\n")] = '\0'; // Supprimer le caractère de nouvelle ligne
 
     printf("Pseudo de l'utilisateur : ");
+    //gets est une fonction dangereuse selon vscode du coup j'utilise fgets
     fgets(newUser.Username, sizeof(newUser.Username), stdin);
     newUser.Username[strcspn(newUser.Username, "\n")] = '\0'; // Supprimer le caractère de nouvelle ligne
 
@@ -430,10 +445,12 @@ void addUser(User *users, int *numUsers)
     printf("Utilisateur ajouté avec succès !\n");
 }
 
+//showUser() : permet d'afficher des informations d'un utilisateur par son identifiant
 void showUser(User *users, int numUsers, Loan *loans, int numLoans)
 {
     char id[30];
     printf("Quel membre voulez-vous sélectionner ? : ");
+    //gets est une fonction dangereuse selon vscode du coup j'utilise fgets
     fgets(id, sizeof(id), stdin);
     id[strcspn(id, "\n")] = '\0'; // Supprimer le caractère de nouvelle ligne
 
@@ -442,6 +459,7 @@ void showUser(User *users, int numUsers, Loan *loans, int numLoans)
 
     for (int i = 0; i < numUsers; i++)
     {
+        ///cette fonction permet de comparer deux variables
         if (strcmp(users[i].UserID, id) == 0)
         {
             selectedUser = users[i];
@@ -486,6 +504,7 @@ void showUser(User *users, int numUsers, Loan *loans, int numLoans)
     }
 }
 
+//displayUsersList() : affiche une liste complète des membres
 void displayUsersList(User *users, int numUsers)
 {
     if(numUsers == 0) {
@@ -507,12 +526,15 @@ void displayUsersList(User *users, int numUsers)
 ///Fonctions d'emprunt
 
 
+//createLoan() : fonction qui permet de créer un nouvel emprunt (si le livre n'est pas emprunté)
 void createLoan(Loan *loans, int *numLoans, User *users, int numUsers, Book *books, int numBooks)
 {
     char userID[100];
     char bookID[100];
 
     printf("ID de l'utilisateur : ");
+
+    //gets est une fonction dangereuse selon vscode du coup j'utilise fgets
     fgets(userID, sizeof(userID), stdin);
     userID[strcspn(userID, "\n")] = '\0'; // Supprimer le caractère de nouvelle ligne
 
@@ -576,10 +598,13 @@ void createLoan(Loan *loans, int *numLoans, User *users, int numUsers, Book *boo
     printf("Emprunt créé avec succès !\n");
 }
 
+//showLoan() : affiche la l'emprunt en fonction de l'id donné, et affiche le nom du livre et du membre
 void showLoan(User *users, int numUsers, Book *books, int numBooks, Loan *loans, int numLoans)
 {
     char loanID[30];
     printf("Quel emprunt voulez-vous afficher ? Entrez l'ID de l'emprunt : ");
+
+    //gets est une fonction dangereuse selon vscode du coup j'utilise fgets
     fgets(loanID, sizeof(loanID), stdin);
     loanID[strcspn(loanID, "\n")] = '\0'; // Supprimer le caractère de nouvelle ligne
 
@@ -588,6 +613,7 @@ void showLoan(User *users, int numUsers, Book *books, int numBooks, Loan *loans,
 
     for (int i = 0; i < numLoans; i++)
     {
+        //si le résultat de la comparaison équivaut à 0
         if (strcmp(loans[i].LoanID, loanID) == 0)
         {
             selectedLoan = loans[i];
@@ -632,6 +658,7 @@ void showLoan(User *users, int numUsers, Book *books, int numBooks, Loan *loans,
     }
 }
 
+//displayLoansList() : affiche une liste compltète des emprunts
 void displayLoansList(Loan *loans, int numLoans)
 {
     printf("Liste des emprunts :\n");
@@ -650,20 +677,24 @@ void displayLoansList(Loan *loans, int numLoans)
 ///Fonctions de génération d'identifiants uniques
 
 
+//generateString() : fonction qui génère 20 caractères aléatoires mis ensemble dans une chaine de caractères
 void generateString(char *temp)
 {
     // Liste de tous les caractères qui peuvent être ajoutés à l'UID
     char characters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     int charactersCount = strlen(characters);
 
+    //on boucle pour remplir la chaine
     for(int i = 0; i < UID_SIZE; i++)
     {
         temp[i] = characters[rand() % charactersCount];
     }
 
+    //je retire le \n qui est enregistré à la fin de la chaine de caractères
     temp[UID_SIZE] = '\0';
 }
 
+//generateId() : fonction qui génère un ID unique en fonction du type introduit
 void generateId(enum Type type, char *location, Book *books, int numBooks, User *users, int numUsers, Loan *loans, int numLoans)
 {
     char prefix[UID_SIZE + 5];
@@ -683,6 +714,7 @@ void generateId(enum Type type, char *location, Book *books, int numBooks, User 
         break;
     }
 
+    //on boucle tant que l'id généré n'est pas unique (fonction IsIdUsed())
     do 
     {
         generateString(location);
@@ -693,6 +725,7 @@ void generateId(enum Type type, char *location, Book *books, int numBooks, User 
     } while (IsIdUsed(type, location, books, numBooks, users, numUsers, loans, numLoans));
 }
 
+//IsIdUsed() : fonction qui va déterminer si l'id est utilisé dans le type en question (livre, utilisateur, emprunts)
 bool IsIdUsed(enum Type type, char *idString, Book *books, int numBooks, User *users, int numUsers, Loan *loans, int numLoans) 
 {
     switch (type)
@@ -700,6 +733,7 @@ bool IsIdUsed(enum Type type, char *idString, Book *books, int numBooks, User *u
     case 1: // Book
         for(int i = 0; i < numBooks; i++)
         {
+            ///si le resultat de la comparaison entre l'id introduit et le livre[i] sont égaux
             if(strcmp(books[i].BookID, idString) == 0)
             {
                 return true;
