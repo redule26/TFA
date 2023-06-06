@@ -58,8 +58,9 @@ void displayLoansList(Loan*, int);
 void createLoan(Loan*, int *, User*, int, Book*, int);
 void showLoan(User*, int, Book*, int, Loan*, int);
 void showUserLoans(User*, Loan*, int, int);
+void deleteLoan(Loan*, int*);
 
-///GEN ID PROTOTYPES 
+///GEN ID PROTOTYPES
 void generateString(char*);
 void generateId(enum Type, char*, Book*, int, User*, int, Loan*, int);
 bool IsIdUsed(enum Type, char*, Book*, int, User*, int, Loan*, int);
@@ -69,18 +70,24 @@ int main() {
     //J'ai besoin de la fonction rand() pour générer un id unique
     srand(time(NULL));
 
+    //création des "bases de données" chargées dans le programme
     Book books[MAX_LIVRES];
     User users[MAX_MEMBRES];
     Loan loans[MAX_EMPRUNTS];
+
+    //on a besoin du nombre d'elements dans les bases de données
     int numBooks = 0, numUsers = 0, numLoans = 0;
     int choice;
 
     //Chargement des données contenues dans les fichiers dans les arrays de livres, d'utilisateur et d'emprunts.
     loadData(books, &numBooks, users, &numUsers, loans, &numLoans);
 
+    //tant qu'on ne quitte pas le programme avec 0
     while(1) {
+
+        //variable utilisée pour le switch
         choice = 0;
-        printf("\nBienvenue sur le programme de gestion de la bibliothèque IPES Wavre, que souhaitez-vous faire ?\n");
+        printf("\nBienvenue sur le programme de gestion de la bibliotheque IPES Wavre, que souhaitez-vous faire ?\n");
 
         ///Gestion des livres
         printf("1. Ajouter un livre\n");
@@ -93,9 +100,10 @@ int main() {
 
         printf("7. creer un emprunt\n");
         printf("8. afficher les informations d'un emprunt\n");
-        printf("9. Afficher la liste des emprunts\n\n");
+        printf("9. Afficher la liste des emprunts\n");
+        printf("10. Supprimer un emprunt\n\n");
 
-        printf("10. Quitter\n");
+        printf("0. Quitter\n");
         printf("Choix : ");
         scanf("%i", &choice);
         getchar(); //on vide le buffer input
@@ -129,21 +137,23 @@ int main() {
                 showLoan(users, numUsers, books, numBooks, loans, numLoans);
                 break;
 
-           case 9: 
+           case 9:
                 displayLoansList(loans, numLoans);
                 break;
 
-            case 10:
+           case 10:
+                deleteLoan(loans, &numLoans);
+                break;
+
+            case 0:
                 printf("Au revoir !\n");
+                saveData(books, numBooks, users, numUsers, loans, numLoans);
                 return 0;
             default:
                 printf("Choix invalide.\n");
                 break;
         }
     }
-
-    saveData(books, numBooks, users, numUsers, loans, numLoans);
-    return 0;
 }
 
 
@@ -154,10 +164,13 @@ int main() {
 //Fonction appelée à la fermeture du programme pour stocker le contenu des tableaux 'livres', 'membres' et 'emprunts' dans les fichiers.txt
 void saveData(Book *books, int numBooks, User *users, int numUsers, Loan *loans, int numLoans)
 {
+
+    //nom des fichiers pour faire la sauvegarde et les codes d'erreur de manière dynamique
     char bookFile[50] = "livres.txt";
     char userFile[50] = "membres.txt";
     char loanFile[50] = "emprunts.txt";
 
+    //ouverture du fichier livres
     FILE *bookPtr = fopen(bookFile, "w");
     if (bookPtr == NULL)
     {
@@ -165,17 +178,14 @@ void saveData(Book *books, int numBooks, User *users, int numUsers, Loan *loans,
         return;
     }
 
+    //on imprime les n enregistrements
     for (int i = 0; i < numBooks; i++)
     {
-        fprintf(bookPtr, "%s;%s;%s;%d", books[i].BookID, books[i].Title, books[i].Author, books[i].Year);
-        if (i != numBooks - 1)
-        {
-            fprintf(bookPtr, "\n");
-        }
+        fprintf(bookPtr, "%s;%s;%s;%d\n", books[i].BookID, books[i].Title, books[i].Author, books[i].Year);
     }
 
     fclose(bookPtr);
-    printf("Les livres ont été enregistrés avec succès dans le fichier '%s'.\n", bookFile);
+    printf("Les livres ont ete enregistres avec succes dans le fichier '%s'.\n", bookFile);
 
     FILE *userPtr = fopen(userFile, "w");
     if (userPtr == NULL)
@@ -186,11 +196,11 @@ void saveData(Book *books, int numBooks, User *users, int numUsers, Loan *loans,
 
     for (int i = 0; i < numUsers; i++)
     {
-        fprintf(userPtr, "%s;%s;%s;%s", users[i].UserID, users[i].Username, users[i].LastName, users[i].FirstName);
+        fprintf(userPtr, "%s;%s;%s;%s\n", users[i].UserID, users[i].Username, users[i].LastName, users[i].FirstName);
     }
 
     fclose(userPtr);
-    printf("Les membres ont été enregistrés avec succès dans le fichier '%s'.\n", userFile);
+    printf("Les membres ont ete enregistres avec succes dans le fichier '%s'.\n", userFile);
 
     FILE *loanPtr = fopen(loanFile, "w");
     if (loanPtr == NULL)
@@ -201,16 +211,17 @@ void saveData(Book *books, int numBooks, User *users, int numUsers, Loan *loans,
 
     for (int i = 0; i < numLoans; i++)
     {
-        fprintf(loanPtr, "%s;%s;%s", loans[i].LoanID, loans[i].userID, loans[i].bookID);
+        fprintf(loanPtr, "%s;%s;%s\n", loans[i].LoanID, loans[i].userID, loans[i].bookID);
     }
 
     fclose(loanPtr);
-    printf("Les emprunts ont été enregistrés avec succès dans le fichier '%s'.\n", loanFile);
+    printf("Les emprunts ont ete enregistres avec succes dans le fichier '%s'.\n", loanFile);
 }
 
 //Fonction appelée au démarrage du programme pour stocker dans les tableaux de structure 'livres', 'membres' et 'emprunts' les données présents dans les fichiers .txt
 void loadData(Book *books, int *numBooks, User *users, int *numUsers, Loan *loans, int *numLoans)
 {
+    //nom des fichiers pour faire la sauvegarde et les codes d'erreur de manière dynamique
     char bookFile[50] = "livres.txt";
     char usersFile[50] = "membres.txt";
     char loanFile[50] = "emprunts.txt";
@@ -225,10 +236,15 @@ void loadData(Book *books, int *numBooks, User *users, int *numUsers, Loan *loan
 
     *numBooks = 0;
 
+    //chaine de caractères qui sert de buffer
     char line[100];
     //on boucle tant que la ligne contient du texte
     while (fgets(line, sizeof(line), ptr_bookFile) != NULL)
     {
+        // Supprimer le caractère de nouvelle ligne à la fin de la ligne lue
+        line[strcspn(line, "\n")] = '\0';
+
+        //strtok permet de séparer la ligne en plusieurs parties et de retirer les ";"
         char *token;
         token = strtok(line, ";");
 
@@ -262,6 +278,9 @@ void loadData(Book *books, int *numBooks, User *users, int *numUsers, Loan *loan
     //on boucle tant que la ligne contient du texte
     while (fgets(line, sizeof(line), ptr_usersFile) != NULL)
     {
+        // Supprimer le caractère de nouvelle ligne à la fin de la ligne lue
+        line[strcspn(line, "\n")] = '\0';
+
         char *token;
         token = strtok(line, ";");
 
@@ -296,6 +315,8 @@ void loadData(Book *books, int *numBooks, User *users, int *numUsers, Loan *loan
     //on boucle tant que la ligne contient du texte
     while (fgets(line, sizeof(line), ptr_loanFile) != NULL)
     {
+        line[strcspn(line, "\n")] = '\0';
+
         char *token;
         token = strtok(line, ";");
 
@@ -313,7 +334,7 @@ void loadData(Book *books, int *numBooks, User *users, int *numUsers, Loan *loan
 
     fclose(ptr_loanFile);
 
-    printf("Les fichiers %s, %s et %s ont été chargés avec succès.\n", bookFile, usersFile, loanFile);
+    printf("Les fichiers %s, %s et %s ont ete charges avec succes.\n", bookFile, usersFile, loanFile);
 }
 
 
@@ -324,13 +345,15 @@ void addBook(Book *books, int *numBooks)
 {
     if (*numBooks == MAX_LIVRES)
     {
-        printf("La bibliothèque est pleine. Impossible d'ajouter un livre.\n");
+        printf("La bibliotheque est pleine. Impossible d'ajouter un livre.\n");
         return;
     }
 
+    //creation d'un livre qui va être rajouté à la fin de l'enregistrement par l'utilisateur
     Book newBook;
 
-    generateId(BookType, newBook.BookID, books, numBooks, NULL, 0, NULL, 0);
+    //fonction qui va générer un ID de type "BOOK-......"
+    generateId(BookType, newBook.BookID, books, *numBooks, NULL, 0, NULL, 0);
 
     printf("Titre du livre : ");
     fgets(newBook.Title, sizeof(newBook.Title), stdin);
@@ -340,35 +363,35 @@ void addBook(Book *books, int *numBooks)
     fgets(newBook.Author, sizeof(newBook.Author), stdin);
     newBook.Author[strcspn(newBook.Author, "\n")] = '\0'; // Supprimer le caractère de nouvelle ligne
 
-    printf("Année de publication : ");
+    printf("Annee de publication : ");
     char yearInput[100];
     fgets(yearInput, sizeof(yearInput), stdin);
     sscanf(yearInput, "%i", &newBook.Year);
 
-    //au lieu 
+    //on rajoute le livre dans le tableau
     books[*numBooks] = newBook;
     (*numBooks)++;
 
-    printf("Livre ajouté avec succès !\n");
+    printf("Livre ajoute avec succes !\n");
 }
 
 //displayLibrary() : fonction qui permet d'afficher une liste complète des livres stockés dans le array livre
-void displayLibrary(Book *books, int numBooks) 
+void displayLibrary(Book *books, int numBooks)
 {
-    if (numBooks == 0) 
+    if (numBooks == 0)
     {
-        printf("La bibliothèque est vide.\n");
+        printf("La bibliotheque est vide.\n");
         return;
     }
 
-    printf("Livres dans la bibliothèque :\n");
-    for(int i = 0; i < numBooks; i++) 
+    printf("Livres dans la bibliotheque :\n");
+    for(int i = 0; i < numBooks; i++)
     {
         printf("Livre %d :\n", i + 1);
         printf("UID : %s\n", books[i].BookID);
         printf("Titre : %s\n", books[i].Title);
         printf("Auteur : %s\n", books[i].Author);
-        printf("Année de publication : %d\n", books[i].Year);
+        printf("Annee de publication : %d\n", books[i].Year);
         printf("--------------------------------\n");
     }
 }
@@ -395,6 +418,7 @@ void showBook(Book *books, int numBooks)
         }
     }
 
+    //à la fin de la boucle, si found == true, on affiche les infos du livre choisi
     if (found)
     {
         printf("Voici le livre dont l'id est : %s\n", selectedBook.BookID);
@@ -402,7 +426,7 @@ void showBook(Book *books, int numBooks)
     }
     else
     {
-        printf("Livre non trouvé.\n");
+        printf("Livre non trouve.\n");
     }
 }
 
@@ -413,7 +437,7 @@ void showBook(Book *books, int numBooks)
 //addUser() : permet de rajouter un utilisateur dans le array de membres et par la suite dans le fichier
 void addUser(User *users, int *numUsers)
 {
-    if (*numUsers == MAX_MEMBRES) 
+    if (*numUsers == MAX_MEMBRES)
     {
         printf("L'emplacement pour les membres est plein.\n");
         return;
@@ -421,7 +445,7 @@ void addUser(User *users, int *numUsers)
 
     User newUser;
 
-    // Génération de l'ID utilisateur
+    // Génération de l'ID utilisateur "USER-....."
     generateId(UserType, newUser.UserID, NULL, 0, users, *numUsers, NULL, 0);
 
     printf("Nom de famille de l'utilisateur : ");
@@ -442,14 +466,14 @@ void addUser(User *users, int *numUsers)
     users[*numUsers] = newUser;
     (*numUsers)++;
 
-    printf("Utilisateur ajouté avec succès !\n");
+    printf("Utilisateur ajoute avec succes !\n");
 }
 
 //showUser() : permet d'afficher des informations d'un utilisateur par son identifiant
 void showUser(User *users, int numUsers, Loan *loans, int numLoans)
 {
     char id[30];
-    printf("Quel membre voulez-vous sélectionner ? : ");
+    printf("Quel membre voulez-vous selectionner ? : ");
     //gets est une fonction dangereuse selon vscode du coup j'utilise fgets
     fgets(id, sizeof(id), stdin);
     id[strcspn(id, "\n")] = '\0'; // Supprimer le caractère de nouvelle ligne
@@ -470,12 +494,12 @@ void showUser(User *users, int numUsers, Loan *loans, int numLoans)
 
     if (found)
     {
-        printf("Voici les informations sur le membre sélectionné :\n\n");
+        printf("Voici les informations sur le membre selectionne :\n\n");
         printf("UID : %s\n", selectedUser.UserID);
         printf("Nom : %s\n", selectedUser.LastName);
-        printf("Prénom : %s\n", selectedUser.FirstName);
+        printf("Prenom : %s\n", selectedUser.FirstName);
         printf("Pseudo : %s\n", selectedUser.Username);
-        printf("--------------------------------\n");
+        printf("--------------------------------\n\n");
 
         printf("Liste des emprunts du membre :\n");
         bool hasLoans = false;
@@ -500,7 +524,7 @@ void showUser(User *users, int numUsers, Loan *loans, int numLoans)
     }
     else
     {
-        printf("Aucun membre trouvé avec cet UID.\n");
+        printf("Aucun membre trouve avec cet UID.\n");
     }
 }
 
@@ -512,13 +536,13 @@ void displayUsersList(User *users, int numUsers)
         return;
     }
 
-    printf("Utilisateurs dans la bibliothèque :\n");
+    printf("Utilisateurs dans la bibliotheque :\n");
     for(int i = 0; i < numUsers; i++)
     {
         printf("ID : %s\n", users[i].UserID);
         printf("Nom d'utilisateur : %s\n", users[i].Username);
-        printf("Prénom : %s\n", users[i].FirstName);
-        printf("Nom de famille : %s\n", users[i].LastName);
+        printf("Prenom : %s\n", users[i].FirstName);
+        printf("Nom de famille : %s\n\n", users[i].LastName);
     }
 }
 
@@ -547,7 +571,7 @@ void createLoan(Loan *loans, int *numLoans, User *users, int numUsers, Book *boo
     {
         if (strcmp(loans[i].bookID, bookID) == 0)
         {
-            printf("Le livre avec l'ID '%s' est déjà emprunté.\n", bookID);
+            printf("Le livre avec l'ID '%s' est déjà emprunte.\n", bookID);
             return;
         }
     }
@@ -573,6 +597,7 @@ void createLoan(Loan *loans, int *numLoans, User *users, int numUsers, Book *boo
     bool bookExists = false;
     for (int i = 0; i < numBooks; i++)
     {
+        //strcmp sert à vérifier une égalité comme ==
         if (strcmp(books[i].BookID, bookID) == 0)
         {
             bookExists = true;
@@ -588,17 +613,17 @@ void createLoan(Loan *loans, int *numLoans, User *users, int numUsers, Book *boo
 
     // Créer un nouvel emprunt
     Loan newLoan;
-    generateId(LoanType, newLoan.LoanID, NULL, 0, NULL, 0, loans, numLoans);
+    generateId(LoanType, newLoan.LoanID, NULL, 0, NULL, 0, loans, *numLoans);
     strcpy(newLoan.userID, userID);
     strcpy(newLoan.bookID, bookID);
 
     loans[*numLoans] = newLoan;
     (*numLoans)++;
 
-    printf("Emprunt créé avec succès !\n");
+    printf("Emprunt cree avec succès !\n");
 }
 
-//showLoan() : affiche la l'emprunt en fonction de l'id donné, et affiche le nom du livre et du membre
+//showLoan() : affiche la l'emprunt en fonction de l'id donné, et affiche le nom du livre et du membre (même logique que User et Emprunt)
 void showLoan(User *users, int numUsers, Book *books, int numBooks, Loan *loans, int numLoans)
 {
     char loanID[30];
@@ -647,18 +672,18 @@ void showLoan(User *users, int numUsers, Book *books, int numBooks, Loan *loans,
             }
         }
 
-        printf("Emprunt trouvé :\n");
+        printf("Emprunt trouve :\n");
         printf("ID de l'emprunt : %s\n", selectedLoan.LoanID);
         printf("Membre : %s %s\n", selectedUser.FirstName, selectedUser.LastName);
-        printf("Livre emprunté : %s\n", selectedBook.Title);
+        printf("Livre emprunte : %s\n", selectedBook.Title);
     }
     else
     {
-        printf("Aucun emprunt trouvé avec cet ID.\n");
+        printf("Aucun emprunt trouve avec cet ID.\n");
     }
 }
 
-//displayLoansList() : affiche une liste compltète des emprunts
+//displayLoansList() : affiche une liste compltète des emprunts (même logique que displayUsers et displayBooks)
 void displayLoansList(Loan *loans, int numLoans)
 {
     printf("Liste des emprunts :\n");
@@ -672,7 +697,42 @@ void displayLoansList(Loan *loans, int numLoans)
     }
 }
 
+// deleteLoan() : supprimer un emprunt
+void deleteLoan(Loan *loans, int *numLoans)
+{
+    if (*numLoans == 0)
+    {
+        printf("Il n'y a aucun emprunt enregistre.\n");
+        return;
+    }
 
+    char loanID[30];
+    printf("Entrez l'identifiant de l'emprunt à supprimer : ");
+    fgets(loanID, sizeof(loanID), stdin);
+    loanID[strcspn(loanID, "\n")] = '\0'; // Supprimer le caractère de nouvelle ligne
+
+    int deleteIndex = -1;
+    for (int i = 0; i < *numLoans; i++)
+    {
+        if (strcmp(loans[i].LoanID, loanID) == 0)
+        {
+            deleteIndex = i;
+            break;
+        }
+    }
+
+    if (deleteIndex != -1)
+    {
+        // Déplacer le dernier emprunt à la position de l'emprunt à supprimer
+        loans[deleteIndex] = loans[*numLoans - 1];
+        (*numLoans)--;
+        printf("L'emprunt a ete supprime avec succes.\n");
+    }
+    else
+    {
+        printf("Emprunt non trouve.\n");
+    }
+}
 
 ///Fonctions de génération d'identifiants uniques
 
@@ -704,18 +764,18 @@ void generateId(enum Type type, char *location, Book *books, int numBooks, User 
     case 1:
         strcpy(prefix, "BOOK-");
         break;
-    
+
     case 2:
         strcpy(prefix, "USER-");
         break;
-        
+
     case 3:
         strcpy(prefix, "LOAN-");
         break;
     }
 
     //on boucle tant que l'id généré n'est pas unique (fonction IsIdUsed())
-    do 
+    do
     {
         generateString(location);
         char temp[UID_SIZE + 5];
@@ -726,7 +786,7 @@ void generateId(enum Type type, char *location, Book *books, int numBooks, User 
 }
 
 //IsIdUsed() : fonction qui va déterminer si l'id est utilisé dans le type en question (livre, utilisateur, emprunts)
-bool IsIdUsed(enum Type type, char *idString, Book *books, int numBooks, User *users, int numUsers, Loan *loans, int numLoans) 
+bool IsIdUsed(enum Type type, char *idString, Book *books, int numBooks, User *users, int numUsers, Loan *loans, int numLoans)
 {
     switch (type)
     {
