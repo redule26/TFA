@@ -31,7 +31,7 @@ struct User {
 } typedef User;
 
 struct Loan {
-    char UID[100]; //par exemple : EMP-129380-13198
+    char UID[100]; //par exemple : EMP-129380fez13198
     char userID[100];
     char bookID[100];
 } typedef Loan;
@@ -44,7 +44,18 @@ Gestion des livres
 - addBook()
 - removeBook()
 - listBooks()
-- infoBook(int id)
+- infoBook(id)
+
+Gestion des membres
+- addUser()
+- showUser(id)
+- displayUsersList()
+
+Gestion des emprunts
+- createLoan()
+- showLoan(id)
+- displayLoanList()
+- deleteLoan(id)
 
 À la fermeture
 - sauvegarde des données présentes dans les tableaux de structures dans les fichiers grâce à saveData(); 
