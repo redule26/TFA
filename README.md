@@ -42,7 +42,6 @@ Au démarrage
 
 Gestion des livres
 - addBook()
-- removeBook()
 - listBooks()
 - infoBook(id)
 
